@@ -32,14 +32,19 @@ module.exports = (robot) ->
 #   dlinsin
 
 module.exports = (robot) ->
-  robot.hear /(chuck norris)( me )?(.*)/i, (msg)->
+  robot.respond /(chuck norris)( me )?(.*)/i, (msg)->
     user = msg.match[3]
     if user.length == 0
-      askChuck msg, "http://api.icndb.com/jokes/random"
+      askChuck()
     else
-      askChuck msg, "http://api.icndb.com/jokes/random?firstName="+user+"&lastName="
+      [firstName, otherNames...] = user.split /\s+/
+      askChuck firstName, otherNames.join(' ')
 
-  askChuck = (msg, url) ->
+  robot.hear /chuck norris/i, ()->
+    askChuck()
+
+  askChuck = (firstName='Chuck', lastName='Norris') ->
+    url = "http://api.icndb.com/jokes/random?firstName=#{firstName}&lastName=#{lastName}"
     msg.http(url)
       .get() (err, res, body) ->
         if err
