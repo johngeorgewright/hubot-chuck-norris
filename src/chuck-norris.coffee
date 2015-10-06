@@ -14,7 +14,7 @@
 # Author:
 #   John Wright <johngeorge.wright@gmail.com>
 
-module.exports = (robot) ->
+module.exports = (robot)->
 # Description:
 #   Chuck Norris awesomeness
 #
@@ -31,28 +31,29 @@ module.exports = (robot) ->
 # Author:
 #   dlinsin
 
-module.exports = (robot) ->
-  robot.respond /(chuck norris)( me )?(.*)/i, (msg)->
-    user = msg.match[3]
+module.exports = (robot)->
+  robot.respond /^(chuck norris)( me )?\s*(.*)/i, (res)->
+    http = res.http.bind res
+    send = res.reply.bind res
+    user = res.match[3]
     if user.length == 0
-      askChuck()
+      askChuck http, send
     else
       [firstName, otherNames...] = user.split /\s+/
-      askChuck firstName, otherNames.join(' ')
+      askChuck http, send, firstName, otherNames.join(' ')
 
-  robot.hear /chuck norris/i, ()->
-    askChuck()
+  robot.hear /chuck norris/i, (res)->
+    askChuck res.http.bind(res), res.send.bind(res)
 
-  askChuck = (firstName='Chuck', lastName='Norris') ->
+  askChuck = (req, res, firstName='Chuck', lastName='Norris')->
     url = "http://api.icndb.com/jokes/random?firstName=#{firstName}&lastName=#{lastName}"
-    msg.http(url)
-      .get() (err, res, body) ->
+    req(url)
+      .get() (err, _, body)->
         if err
-          msg.send "Chuck Norris says: #{err}"
+          res "Chuck Norris says: #{err}"
         else
-          message_from_chuck = JSON.parse(body)
-          if message_from_chuck.length == 0
-            msg.send "Achievement unlocked: Chuck Norris is quiet!"
+          messageFromChuck = JSON.parse body
+          if messageFromChuck.type is 'success'
+            res messageFromChuck.value.joke.replace /\s\s/g, ' '
           else
-            msg.send message_from_chuck.value.joke.replace /\s\s/g, " "
-
+            res 'Achievement unlocked: Chuck Norris is quiet!'
