@@ -1,5 +1,7 @@
 # hubot-chuck-norris
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/johngeorgewright/hubot-chuck-norris.svg)](https://greenkeeper.io/)
+
 Ask chuck norris
 
 See [`src/chuck-norris.coffee`](src/chuck-norris.coffee) for full documentation.
